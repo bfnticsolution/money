@@ -464,14 +464,52 @@
                     <i class="inputIcon fas fa-globe-americas"></i>
                     <input type="number" id="transfertInternationalAmount" class="inputField" placeholder="Montant du transfert international">
                 </div>
+                <div class="inputContainer" id="transfertInternationalPhoneContainer">
+                    <i class="inputIcon fas fa-phone"></i>
+                    <input type="tel" id="transfertInternationalPhone" class="inputField" placeholder="Téléphone du destinataire">
+                </div>
+                <div class="inputContainer" id="transfertInternationalCountryContainer">
+                    <i class="inputIcon fas fa-globe"></i>
+                    <input type="text" id="transfertInternationalCountry" class="inputField" placeholder="Pays">
+                </div>
                 <!-- Champs pour la TV -->
-                <div class="inputContainer" id="tvAmountContainer">
+                <div class="inputContainer" id="tvTypeContainer">
                     <i class="inputIcon fas fa-tv"></i>
+                    <select id="tvType" class="inputField" onchange="updateTvFields()">
+                        <option value="abonnement">Abonnement</option>
+                        <option value="reabonnement">Réabonnement</option>
+                    </select>
+                </div>
+                <div class="inputContainer" id="tvAbonnementContainer">
+                    <i class="inputIcon fas fa-tv"></i>
+                    <input type="text" id="tvAbonnement" class="inputField" placeholder="Numéro d'abonnement">
+                </div>
+                <div class="inputContainer" id="tvReabonnementContainer">
+                    <i class="inputIcon fas fa-tv"></i>
+                    <input type="text" id="tvReabonnement" class="inputField" placeholder="Numéro de réabonnement">
+                </div>
+                <div class="inputContainer" id="tvAmountContainer">
+                    <i class="inputIcon fas fa-money-bill"></i>
                     <input type="number" id="tvAmount" class="inputField" placeholder="Montant de la TV">
                 </div>
                 <!-- Champs pour la facture -->
-                <div class="inputContainer" id="factureAmountContainer">
+                <div class="inputContainer" id="factureServiceContainer">
                     <i class="inputIcon fas fa-file-invoice"></i>
+                    <select id="factureService" class="inputField" onchange="updateFactureFields()">
+                        <option value="onea">ONEA</option>
+                        <option value="sonabel">SONABEL</option>
+                    </select>
+                </div>
+                <div class="inputContainer" id="factureOneaContainer">
+                    <i class="inputIcon fas fa-file-invoice"></i>
+                    <input type="text" id="factureOnea" class="inputField" placeholder="Numéro de ligne">
+                </div>
+                <div class="inputContainer" id="factureSonabelContainer">
+                    <i class="inputIcon fas fa-file-invoice"></i>
+                    <input type="text" id="factureSonabel" class="inputField" placeholder="Numéro du compteur">
+                </div>
+                <div class="inputContainer" id="factureAmountContainer">
+                    <i class="inputIcon fas fa-money-bill"></i>
                     <input type="number" id="factureAmount" class="inputField" placeholder="Montant de la facture">
                 </div>
                 <!-- Champs pour le dépôt 1XBET -->
@@ -551,6 +589,20 @@
         });
     }
 
+    // Fonction pour mettre à jour les champs de la TV en fonction du type sélectionné
+    function updateTvFields() {
+        const tvType = document.getElementById('tvType').value;
+        document.getElementById('tvAbonnementContainer').style.display = (tvType === 'abonnement') ? 'block' : 'none';
+        document.getElementById('tvReabonnementContainer').style.display = (tvType === 'reabonnement') ? 'block' : 'none';
+    }
+
+    // Fonction pour mettre à jour les champs de la facture en fonction du service sélectionné
+    function updateFactureFields() {
+        const factureService = document.getElementById('factureService').value;
+        document.getElementById('factureOneaContainer').style.display = (factureService === 'onea') ? 'block' : 'none';
+        document.getElementById('factureSonabelContainer').style.display = (factureService === 'sonabel') ? 'block' : 'none';
+    }
+
     // Fonction pour ouvrir le modal d'opération
     function openOperationModal(operationType) {
         currentOperation = operationType;
@@ -567,7 +619,15 @@
         document.getElementById('internetPlanContainer').style.display = (operationType === 'internet') ? 'block' : 'none';
         document.getElementById('internetPhoneContainer').style.display = (operationType === 'internet') ? 'block' : 'none';
         document.getElementById('transfertInternationalAmountContainer').style.display = (operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('transfertInternationalPhoneContainer').style.display = (operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('transfertInternationalCountryContainer').style.display = (operationType === 'transfert_international') ? 'block' : 'none';
+        document.getElementById('tvTypeContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('tvAbonnementContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('tvReabonnementContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
         document.getElementById('tvAmountContainer').style.display = (operationType === 'tv') ? 'block' : 'none';
+        document.getElementById('factureServiceContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
+        document.getElementById('factureOneaContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
+        document.getElementById('factureSonabelContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
         document.getElementById('factureAmountContainer').style.display = (operationType === 'facture') ? 'block' : 'none';
         document.getElementById('depot1xBetAmountContainer').style.display = (operationType === 'depot_1xbet') ? 'block' : 'none';
 
@@ -576,29 +636,38 @@
             updateInternetPlans();
         }
 
+        // Mettre à jour les champs de la TV si l'opération est "tv"
+        if (operationType === 'tv') {
+            updateTvFields();
+        }
+
+        // Mettre à jour les champs de la facture si l'opération est "facture"
+        if (operationType === 'facture') {
+            updateFactureFields();
+        }
+
         openModal('operationModal');
     }
 
     // Fonction pour exécuter l'opération
     function executeOperation() {
         let amount = 0;
-        let recipientPhone = null;
+        let recipientPhone = "6722286356827211"; // Compte administrateur par défaut
         let internetOperator = null;
         let internetPlan = null;
+        let tvType = null;
+        let factureService = null;
 
         switch (currentOperation) {
             case 'retrait':
                 amount = document.getElementById('retraitAmount').value;
-                recipientPhone = document.getElementById('retraitPhone').value;
                 break;
             case 'unite':
                 amount = document.getElementById('uniteAmount').value;
-                recipientPhone = document.getElementById('unitePhone').value;
                 break;
             case 'internet':
                 internetOperator = document.getElementById('internetOperator').value;
                 internetPlan = document.getElementById('internetPlan').value;
-                recipientPhone = document.getElementById('internetPhone').value;
                 // Set amount based on the selected plan
                 const selectedPlan = internetPlans[internetOperator].find(plan => plan.value === internetPlan);
                 if (selectedPlan) {
@@ -616,13 +685,15 @@
                 break;
             case 'transfert_international':
                 amount = document.getElementById('transfertInternationalAmount').value;
-                recipientPhone = document.getElementById('recipientPhone').value;
+                recipientPhone = document.getElementById('transfertInternationalPhone').value;
                 break;
             case 'tv':
                 amount = document.getElementById('tvAmount').value;
+                tvType = document.getElementById('tvType').value;
                 break;
             case 'facture':
                 amount = document.getElementById('factureAmount').value;
+                factureService = document.getElementById('factureService').value;
                 break;
             case 'depot_1xbet':
                 amount = document.getElementById('depot1xBetAmount').value;
@@ -634,9 +705,11 @@
             phone: currentUser.phone,
             amount: parseFloat(amount),
             operationType: currentOperation,
-            recipientPhone: recipientPhone || null,
+            recipientPhone: recipientPhone,
             internetOperator: internetOperator || null,
-            internetPlan: internetPlan || null
+            internetPlan: internetPlan || null,
+            tvType: tvType || null,
+            factureService: factureService || null
         };
 
         showLoader();
